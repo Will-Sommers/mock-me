@@ -14,9 +14,9 @@
                               {:user {:type "normal" :name "Yngwie Malmsteen"}}
                               {:user 1}]}))
 
-(def app-state-2 (atom {:yar [:dinosaur {:type "t-rex"}
-                             :dinosaur {:type "brontosaurus"}
-                             :cat {:type "tabby"}]}))
+(def app-state-2 (atom {:yar [{:dinosaur {:type "t-rex"}}
+                              {:dinosaur {:type "brontosaurus"}}
+                              {:cat {:type "tabby"}}]}))
 
 (def local-dragging? (atom false))
 
@@ -33,6 +33,8 @@
     #js {:position "fixed"
          :left (:left pos)
          :top (:top pos)}))
+
+(declare init)
 
 (defn draggable-window [data owner]
   (reify
@@ -66,7 +68,11 @@
 
 (defn blank-view [data owner]
   (om/component
-   (dom/div nil "test")))
+   (dom/div #js {:style #js {"color" "red"}} (get-in data [:user :name]))))
+
+(defn blank-view-2 [data owner]
+  (om/component
+   (dom/div nil (get-in data [:dinosaur :type]))))
 
 (defn app [data owner]
   (reify
@@ -74,7 +80,9 @@
     (render [_]
       (dom/div nil
                (apply dom/div nil
-                      (om/build-all blank-view (:views data)))               
+                      (om/build-all blank-view (:views data)))
+               (apply dom/div nil
+                      (om/build-all blank-view-2 (:yar data)))
                (om/build draggable-window {:data data :render-via ankha/inspector})
                ))))
 
@@ -84,4 +92,4 @@
    app-state
    {:target (. js/document (getElementById "app"))}))
 
-(init app-state-1)
+(init app-state-2)
